@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+  <title>GHP: ตรวจสุขลักษณะก่อนเข้างาน</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 15px; background-color: #f4f6f9; color: #333; }
+    .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h2 { color: #1e3a8a; font-size: 18px; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+    .question { margin-bottom: 18px; background: #fafafa; padding: 10px; border-radius: 6px; border-left: 4px solid #06c755; }
+    label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; line-height: 1.4; }
+    select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; }
+    button { width: 100%; padding: 14px; background-color: #06c755; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; margin-top: 15px; cursor: pointer; }
+    button:disabled { background-color: #ccc; }
+    .note { font-size: 12px; color: #666; font-weight: normal; display: block; margin-top: 4px; }
+    .emp-section { border-left: 4px solid #ff9800; background: #fff8e1; } 
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h2>แบบบันทึกสุขลักษณะส่วนบุคคล<br><span style="font-size: 14px; color: #666;">(อ้างอิง: QP-QA-10)</span></h2>
+    <form id="ghpForm">
+      
+      <div class="question emp-section">
+        <label>👤 เลือกชื่อพนักงาน (Employee Name)</label>
+        <select id="employeeName" required>
+          <option value="" disabled selected>⏳ กำลังโหลดรายชื่อพนักงาน...</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <label>1. การแต่งกาย <span class="note">(แต่งกายสะอาด, สวมยูนิฟอร์มและหมวกคลุมผมครบถ้วน)</span></label>
+        <select id="uniform" required>
+          <option value="" disabled selected>-- เลือกสถานะ --</option>
+          <option value="Pass">ผ่าน (เรียบร้อย)</option>
+          <option value="Fail">ไม่ผ่าน (ไม่เรียบร้อย)</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <label>2. เล็บและเครื่องประดับ <span class="note">(เล็บสั้น, ไม่ทาสีเล็บ, ไม่สวมเครื่องประดับ)</span></label>
+        <select id="nails" required>
+          <option value="" disabled selected>-- เลือกสถานะ --</option>
+          <option value="Pass">ผ่าน (ถูกต้อง)</option>
+          <option value="Fail">ไม่ผ่าน (ผิดระเบียบ)</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <label>3. แต่งหน้าและน้ำหอม <span class="note">(ไม่แต่งหน้า, ไม่ฉีดน้ำหอม)</span></label>
+        <select id="cosmetics" required>
+          <option value="" disabled selected>-- เลือกสถานะ --</option>
+          <option value="Pass">ผ่าน (ถูกต้อง)</option>
+          <option value="Fail">ไม่ผ่าน (ผิดระเบียบ)</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <label>4. สุขภาพร่างกาย <span class="note">(ไม่มีอาการป่วย, ไอ, จาม, หรือโรคติดต่อ)</span></label>
+        <select id="health" required>
+          <option value="" disabled selected>-- เลือกสถานะ --</option>
+          <option value="Pass">ผ่าน (ปกติ)</option>
+          <option value="Fail">ไม่ผ่าน (มีอาการป่วย)</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <label>5. อุปกรณ์ส่วนบุคคลพิเศษ <span class="note">(แว่นตามีสายคล้อง, คอนแทคเลนส์แจ้งหน.งาน)</span></label>
+        <select id="specialEq" required>
+          <option value="" disabled selected>-- เลือกสถานะ --</option>
+          <option value="Pass">ผ่าน / ไม่มีอุปกรณ์</option>
+          <option value="Fail">ไม่ผ่าน (ชำรุด/ไม่ได้แจ้ง)</option>
+        </select>
+      </div>
+
+      <div class="question">
+        <label>6. พฤติกรรมต้องห้าม <span class="note">(ไม่พกมือถือ, ไม่พกอาหาร/เครื่องดื่ม/บุหรี่)</span></label>
+        <select id="behavior" required>
+          <option value="" disabled selected>-- เลือกสถานะ --</option>
+          <option value="Pass">ผ่าน (ถูกต้อง)</option>
+          <option value="Fail">ไม่ผ่าน (พกพาสิ่งต้องห้าม)</option>
+        </select>
+      </div>
+
+      <button type="button" id="submitBtn" onclick="submitData()">บันทึกข้อมูล และตรวจคนต่อไป</button>
+    </form>
+  </div>
+
+  <script>
+    // ==========================================
+    // ตั้งค่า URL ที่นี่!
+    // ==========================================
+    const LIFF_ID = "2009360135-uaaM4KeT"; 
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwC1T_SUXn6e06CCdOpvkpteO4ko7l5Xruf9aWhP6C6ULldxyiLFg8Lh3Sedf47s1V9/exec"; 
+    
+    let checkerUserId = "Kiosk_or_Browser"; 
+
+    // โหลดรายชื่อพนักงานเมื่อเปิดแอป
+    window.onload = function() {
+      fetch(WEB_APP_URL)
+        .then(response => response.json())
+        .then(data => {
+          const empSelect = document.getElementById('employeeName');
+          empSelect.innerHTML = '<option value="" disabled selected>-- เลือกรายชื่อพนักงาน --</option>'; 
+          
+          if(data.result === "success" && data.data.length > 0) {
+            data.data.forEach(function(emp) {
+              let option = document.createElement('option');
+              option.value = emp;
+              option.text = emp;
+              empSelect.appendChild(option);
+            });
+          } else {
+            empSelect.innerHTML = '<option value="" disabled selected>❌ ไม่พบรายชื่อพนักงาน</option>';
+          }
+        })
+        .catch(error => {
+          document.getElementById('employeeName').innerHTML = '<option value="" disabled selected>⚠️ โหลดข้อมูลล้มเหลว</option>';
+          console.error('Error loading employees:', error);
+        });
+    };
+
+    // ล็อกอิน LINE (ถ้าเปิดผ่าน LINE)
+    liff.init({ liffId: LIFF_ID }).then(() => {
+      if (liff.isLoggedIn()) {
+        liff.getProfile().then(profile => {
+          checkerUserId = profile.userId;
+        });
+      }
+    });
+
+    // ฟังก์ชันส่งข้อมูล
+    function submitData() {
+      const empName = document.getElementById('employeeName').value;
+      const uniform = document.getElementById('uniform').value;
+      const nails = document.getElementById('nails').value;
+      const cosmetics = document.getElementById('cosmetics').value;
+      const health = document.getElementById('health').value;
+      const specialEq = document.getElementById('specialEq').value;
+      const behavior = document.getElementById('behavior').value;
+
+      if(!empName || !uniform || !nails || !cosmetics || !health || !specialEq || !behavior) {
+        alert("กรุณาเลือกชื่อพนักงานและประเมินให้ครบทั้ง 6 ข้อครับ");
+        return;
+      }
+
+      document.getElementById('submitBtn').innerText = "กำลังบันทึกข้อมูล...";
+      document.getElementById('submitBtn').disabled = true;
+
+      const payload = {
+        userId: checkerUserId,
+        displayName: empName, 
+        uniform: uniform,
+        nails: nails,
+        cosmetics: cosmetics,
+        health: health,
+        specialEq: specialEq,
+        behavior: behavior
+      };
+
+      fetch(WEB_APP_URL, {
+        method: 'POST',
+        body: JSON.stringify(payload)
+      })
+      .then(response => response.json())
+      .then(data => {
+        if(data.status === "Fail") {
+          alert("บันทึกสำเร็จ: พนักงานท่านนี้มีรายการ 'ไม่ผ่าน' \nห้ามเข้าพื้นที่ผลิตจนกว่าจะแก้ไขเรียบร้อย!");
+        } else {
+          console.log("บันทึกผ่านเรียบร้อย"); 
+        }
+        
+        // เคลียร์ฟอร์มเตรียมพร้อมสำหรับตรวจพนักงานคนต่อไป
+        document.getElementById('ghpForm').reset();
+        window.scrollTo(0, 0); 
+      })
+      .catch(error => {
+        alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + error);
+      })
+      .finally(() => {
+        document.getElementById('submitBtn').innerText = "บันทึกข้อมูล และตรวจคนต่อไป";
+        document.getElementById('submitBtn').disabled = false;
+      });
+    }
+  </script>
+</body>
+</html>
