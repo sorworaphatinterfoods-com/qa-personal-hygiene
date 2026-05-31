@@ -1,0 +1,33 @@
+{
+  "name": "ตรวจสุขลักษณะส่วนบุคคล (GHP)",
+  "short_name": "GHP ตรวจสุขลักษณะ",
+  "description": "แบบบันทึกการตรวจสุขลักษณะส่วนบุคคลก่อนเข้าปฏิบัติงาน (QP-QA-10) — บริษัท ศ.วรภัทร อินเตอร์ ฟู้ดส์ จำกัด",
+  "lang": "th",
+  "dir": "ltr",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f4f6f9",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "icons/icon-maskable-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}

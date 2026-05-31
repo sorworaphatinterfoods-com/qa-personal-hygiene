@@ -4,6 +4,17 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
   <title>GHP: ตรวจสุขลักษณะก่อนเข้างาน</title>
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="theme-color" content="#1e3a8a">
+  <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+  <!-- iOS: เพิ่มไปยังหน้า Home ให้แสดงแบบเต็มจอ -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="GHP ตรวจสุขลักษณะ">
+  <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
     body { font-family: sans-serif; padding: 15px; background-color: #f4f6f9; color: #333; }
@@ -115,6 +126,15 @@
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwC1T_SUXn6e06CCdOpvkpteO4ko7l5Xruf9aWhP6C6ULldxyiLFg8Lh3Sedf47s1V9/exec";
 
     let checkerUserId = "Kiosk_or_Browser";
+
+    // ลงทะเบียน Service Worker เพื่อให้ติดตั้งเป็นแอป (PWA) และใช้งาน offline ได้
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("sw.js").catch(function (err) {
+          console.warn("Service worker registration failed:", err);
+        });
+      });
+    }
 
     // เก็บรายการที่ตรวจในรอบนี้ เพื่อนำไป generate รายงาน A4
     let sessionRecords = [];
