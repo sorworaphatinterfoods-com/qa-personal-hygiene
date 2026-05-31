@@ -11,19 +11,34 @@
     h2 { color: #1e3a8a; font-size: 18px; text-align: center; margin-bottom: 20px; border-bottom: 2px solid #eee; padding-bottom: 10px; }
     .question { margin-bottom: 18px; background: #fafafa; padding: 10px; border-radius: 6px; border-left: 4px solid #06c755; }
     label { display: block; margin-bottom: 8px; font-weight: bold; font-size: 14px; line-height: 1.4; }
-    select { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; }
+    select, input[type="date"], input[type="text"] { width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ccc; font-size: 15px; box-sizing: border-box; }
     button { width: 100%; padding: 14px; background-color: #06c755; color: white; border: none; border-radius: 5px; font-size: 16px; font-weight: bold; margin-top: 15px; cursor: pointer; }
     button:disabled { background-color: #ccc; }
     .note { font-size: 12px; color: #666; font-weight: normal; display: block; margin-top: 4px; }
-    .emp-section { border-left: 4px solid #ff9800; background: #fff8e1; } 
+    .emp-section { border-left: 4px solid #ff9800; background: #fff8e1; }
+    .header-section { border-left: 4px solid #1e3a8a; background: #eef2ff; }
+    .btn-report { background-color: #1e3a8a; }
+    .session-info { font-size: 13px; color: #1e3a8a; text-align: center; margin-top: 8px; font-weight: bold; }
   </style>
 </head>
 <body>
 
   <div class="card">
     <h2>แบบบันทึกสุขลักษณะส่วนบุคคล<br><span style="font-size: 14px; color: #666;">(อ้างอิง: QP-QA-10)</span></h2>
+
+    <!-- ส่วนหัว: วันที่ตรวจ + ผู้ตรวจ (อยู่นอกฟอร์ม เพื่อไม่ให้ถูกล้างเมื่อตรวจคนต่อไป) -->
+    <div class="question header-section">
+      <label>📅 วันที่ตรวจ (Inspection Date)</label>
+      <input type="date" id="inspectionDate" required>
+    </div>
+
+    <div class="question header-section">
+      <label>🧑‍⚕️ ผู้ตรวจ (Inspector)</label>
+      <input type="text" id="inspectorName" placeholder="ระบุชื่อ-สกุล ผู้ตรวจ" required>
+    </div>
+
     <form id="ghpForm">
-      
+
       <div class="question emp-section">
         <label>👤 เลือกชื่อพนักงาน (Employee Name)</label>
         <select id="employeeName" required>
@@ -32,7 +47,7 @@
       </div>
 
       <div class="question">
-        <label>1. การแต่งกาย <span class="note">(แต่งกายสะอาด, สวมยูนิฟอร์มและหมวกคลุมผมครบถ้วน)</span></label>
+        <label>1. การแต่งกายและชุดปฏิบัติงาน <span class="note">(ชุดสะอาด เรียบร้อย สวมหมวกคลุมผมและผ้าปิดปาก-จมูกครบถ้วน)</span></label>
         <select id="uniform" required>
           <option value="" disabled selected>-- เลือกสถานะ --</option>
           <option value="Pass">ผ่าน (เรียบร้อย)</option>
@@ -41,7 +56,7 @@
       </div>
 
       <div class="question">
-        <label>2. เล็บและเครื่องประดับ <span class="note">(เล็บสั้น, ไม่ทาสีเล็บ, ไม่สวมเครื่องประดับ)</span></label>
+        <label>2. มือ เล็บ และเครื่องประดับ <span class="note">(เล็บสั้น สะอาด ไม่ทาสีเล็บ ไม่สวมเครื่องประดับ ไม่มีบาดแผลที่มือ)</span></label>
         <select id="nails" required>
           <option value="" disabled selected>-- เลือกสถานะ --</option>
           <option value="Pass">ผ่าน (ถูกต้อง)</option>
@@ -50,7 +65,7 @@
       </div>
 
       <div class="question">
-        <label>3. แต่งหน้าและน้ำหอม <span class="note">(ไม่แต่งหน้า, ไม่ฉีดน้ำหอม)</span></label>
+        <label>3. การแต่งหน้าและน้ำหอม <span class="note">(ไม่แต่งหน้า ไม่ทาเล็บ ไม่ฉีดน้ำหอม)</span></label>
         <select id="cosmetics" required>
           <option value="" disabled selected>-- เลือกสถานะ --</option>
           <option value="Pass">ผ่าน (ถูกต้อง)</option>
@@ -59,7 +74,7 @@
       </div>
 
       <div class="question">
-        <label>4. สุขภาพร่างกาย <span class="note">(ไม่มีอาการป่วย, ไอ, จาม, หรือโรคติดต่อ)</span></label>
+        <label>4. สุขภาพร่างกาย <span class="note">(ไม่มีอาการป่วย ไอ จาม โรคติดต่อ หรือบาดแผลที่ไม่ได้ปิดมิดชิด)</span></label>
         <select id="health" required>
           <option value="" disabled selected>-- เลือกสถานะ --</option>
           <option value="Pass">ผ่าน (ปกติ)</option>
@@ -68,7 +83,7 @@
       </div>
 
       <div class="question">
-        <label>5. อุปกรณ์ส่วนบุคคลพิเศษ <span class="note">(แว่นตามีสายคล้อง, คอนแทคเลนส์แจ้งหน.งาน)</span></label>
+        <label>5. อุปกรณ์ส่วนบุคคลพิเศษ <span class="note">(แว่นตามีสายคล้อง, คอนแทคเลนส์แจ้ง หน.งาน)</span></label>
         <select id="specialEq" required>
           <option value="" disabled selected>-- เลือกสถานะ --</option>
           <option value="Pass">ผ่าน / ไม่มีอุปกรณ์</option>
@@ -77,7 +92,7 @@
       </div>
 
       <div class="question">
-        <label>6. พฤติกรรมต้องห้าม <span class="note">(ไม่พกมือถือ, ไม่พกอาหาร/เครื่องดื่ม/บุหรี่)</span></label>
+        <label>6. พฤติกรรมและสุขอนามัยมือ <span class="note">(ล้างมือ/ฆ่าเชื้อก่อนเข้างาน, ไม่พกมือถือ/อาหาร/เครื่องดื่ม/บุหรี่)</span></label>
         <select id="behavior" required>
           <option value="" disabled selected>-- เลือกสถานะ --</option>
           <option value="Pass">ผ่าน (ถูกต้อง)</option>
@@ -87,25 +102,47 @@
 
       <button type="button" id="submitBtn" onclick="submitData()">บันทึกข้อมูล และตรวจคนต่อไป</button>
     </form>
+
+    <button type="button" id="reportBtn" class="btn-report" onclick="generateA4()">🖨️ สร้างรายงาน A4 / พิมพ์</button>
+    <div class="session-info" id="sessionInfo">ยังไม่มีรายการที่บันทึกในรอบนี้</div>
   </div>
 
   <script>
     // ==========================================
     // ตั้งค่า URL ที่นี่!
     // ==========================================
-    const LIFF_ID = "2009360135-uaaM4KeT"; 
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwC1T_SUXn6e06CCdOpvkpteO4ko7l5Xruf9aWhP6C6ULldxyiLFg8Lh3Sedf47s1V9/exec"; 
-    
-    let checkerUserId = "Kiosk_or_Browser"; 
+    const LIFF_ID = "2009360135-uaaM4KeT";
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwC1T_SUXn6e06CCdOpvkpteO4ko7l5Xruf9aWhP6C6ULldxyiLFg8Lh3Sedf47s1V9/exec";
 
-    // โหลดรายชื่อพนักงานเมื่อเปิดแอป
+    let checkerUserId = "Kiosk_or_Browser";
+
+    // เก็บรายการที่ตรวจในรอบนี้ เพื่อนำไป generate รายงาน A4
+    let sessionRecords = [];
+
+    // พารามิเตอร์ตรวจ (สอดคล้องกับระบบมาตรฐาน GHP/GMP - QP-QA-10)
+    const PARAMS = [
+      { key: "uniform",   label: "1. การแต่งกาย/ชุดปฏิบัติงาน" },
+      { key: "nails",     label: "2. มือ เล็บ และเครื่องประดับ" },
+      { key: "cosmetics", label: "3. การแต่งหน้า/น้ำหอม" },
+      { key: "health",    label: "4. สุขภาพร่างกาย" },
+      { key: "specialEq", label: "5. อุปกรณ์ส่วนบุคคลพิเศษ" },
+      { key: "behavior",  label: "6. พฤติกรรม/สุขอนามัยมือ" }
+    ];
+
+    // ตั้งค่าวันที่เริ่มต้นเป็นวันนี้ และโหลดรายชื่อพนักงานเมื่อเปิดแอป
     window.onload = function() {
+      const today = new Date();
+      const yyyy = today.getFullYear();
+      const mm = String(today.getMonth() + 1).padStart(2, '0');
+      const dd = String(today.getDate()).padStart(2, '0');
+      document.getElementById('inspectionDate').value = `${yyyy}-${mm}-${dd}`;
+
       fetch(WEB_APP_URL)
         .then(response => response.json())
         .then(data => {
           const empSelect = document.getElementById('employeeName');
-          empSelect.innerHTML = '<option value="" disabled selected>-- เลือกรายชื่อพนักงาน --</option>'; 
-          
+          empSelect.innerHTML = '<option value="" disabled selected>-- เลือกรายชื่อพนักงาน --</option>';
+
           if(data.result === "success" && data.data.length > 0) {
             data.data.forEach(function(emp) {
               let option = document.createElement('option');
@@ -134,6 +171,8 @@
 
     // ฟังก์ชันส่งข้อมูล
     function submitData() {
+      const inspectionDate = document.getElementById('inspectionDate').value;
+      const inspectorName = document.getElementById('inspectorName').value.trim();
       const empName = document.getElementById('employeeName').value;
       const uniform = document.getElementById('uniform').value;
       const nails = document.getElementById('nails').value;
@@ -141,6 +180,11 @@
       const health = document.getElementById('health').value;
       const specialEq = document.getElementById('specialEq').value;
       const behavior = document.getElementById('behavior').value;
+
+      if(!inspectionDate || !inspectorName) {
+        alert("กรุณาเลือกวันที่ตรวจ และระบุชื่อผู้ตรวจก่อนครับ");
+        return;
+      }
 
       if(!empName || !uniform || !nails || !cosmetics || !health || !specialEq || !behavior) {
         alert("กรุณาเลือกชื่อพนักงานและประเมินให้ครบทั้ง 6 ข้อครับ");
@@ -152,7 +196,9 @@
 
       const payload = {
         userId: checkerUserId,
-        displayName: empName, 
+        inspectionDate: inspectionDate,
+        inspector: inspectorName,
+        displayName: empName,
         uniform: uniform,
         nails: nails,
         cosmetics: cosmetics,
@@ -170,12 +216,21 @@
         if(data.status === "Fail") {
           alert("บันทึกสำเร็จ: พนักงานท่านนี้มีรายการ 'ไม่ผ่าน' \nห้ามเข้าพื้นที่ผลิตจนกว่าจะแก้ไขเรียบร้อย!");
         } else {
-          console.log("บันทึกผ่านเรียบร้อย"); 
+          console.log("บันทึกผ่านเรียบร้อย");
         }
-        
-        // เคลียร์ฟอร์มเตรียมพร้อมสำหรับตรวจพนักงานคนต่อไป
+
+        // เก็บรายการไว้สำหรับ generate รายงาน A4
+        const overall = [uniform, nails, cosmetics, health, specialEq, behavior]
+          .includes("Fail") ? "Fail" : "Pass";
+        sessionRecords.push({
+          empName, inspectionDate, inspector: inspectorName,
+          uniform, nails, cosmetics, health, specialEq, behavior, overall
+        });
+        updateSessionInfo();
+
+        // เคลียร์เฉพาะส่วนประเมินพนักงาน (วันที่+ผู้ตรวจอยู่นอกฟอร์ม จึงคงค่าไว้)
         document.getElementById('ghpForm').reset();
-        window.scrollTo(0, 0); 
+        window.scrollTo(0, 0);
       })
       .catch(error => {
         alert("เกิดข้อผิดพลาดในการเชื่อมต่อ: " + error);
@@ -184,6 +239,127 @@
         document.getElementById('submitBtn').innerText = "บันทึกข้อมูล และตรวจคนต่อไป";
         document.getElementById('submitBtn').disabled = false;
       });
+    }
+
+    function updateSessionInfo() {
+      const info = document.getElementById('sessionInfo');
+      if (sessionRecords.length === 0) {
+        info.innerText = "ยังไม่มีรายการที่บันทึกในรอบนี้";
+      } else {
+        info.innerText = `บันทึกแล้ว ${sessionRecords.length} รายการ (พร้อมสร้างรายงาน A4)`;
+      }
+    }
+
+    // แปลงวันที่ ISO เป็นรูปแบบไทย (วัน/เดือน/พ.ศ.)
+    function formatThaiDate(iso) {
+      if (!iso) return "";
+      const [y, m, d] = iso.split("-");
+      const months = ["", "มกราคม","กุมภาพันธ์","มีนาคม","เมษายน","พฤษภาคม","มิถุนายน",
+                      "กรกฎาคม","สิงหาคม","กันยายน","ตุลาคม","พฤศจิกายน","ธันวาคม"];
+      return `${parseInt(d, 10)} ${months[parseInt(m, 10)]} ${parseInt(y, 10) + 543}`;
+    }
+
+    function statusCell(v) {
+      if (v === "Pass") return '<span class="ok">✓</span>';
+      if (v === "Fail") return '<span class="ng">✗</span>';
+      return '-';
+    }
+
+    // สร้างรายงาน A4 และเปิดหน้าต่างพิมพ์
+    function generateA4() {
+      if (sessionRecords.length === 0) {
+        alert("ยังไม่มีรายการที่บันทึก กรุณาบันทึกผลการตรวจอย่างน้อย 1 รายการก่อนสร้างรายงานครับ");
+        return;
+      }
+
+      const inspector = document.getElementById('inspectorName').value.trim() || sessionRecords[0].inspector;
+      const dateThai = formatThaiDate(document.getElementById('inspectionDate').value || sessionRecords[0].inspectionDate);
+
+      const headRow = PARAMS.map((p, i) => `<th class="pcol">${i + 1}</th>`).join("");
+      const bodyRows = sessionRecords.map((r, idx) => {
+        const cells = PARAMS.map(p => `<td class="pcol">${statusCell(r[p.key])}</td>`).join("");
+        const result = r.overall === "Fail"
+          ? '<td class="result ng">ไม่ผ่าน</td>'
+          : '<td class="result ok">ผ่าน</td>';
+        return `<tr><td class="seq">${idx + 1}</td><td class="emp">${r.empName}</td>${cells}${result}</tr>`;
+      }).join("");
+
+      const legend = PARAMS.map(p => `<div>${p.label}</div>`).join("");
+      const passCount = sessionRecords.filter(r => r.overall === "Pass").length;
+      const failCount = sessionRecords.length - passCount;
+
+      const html = `<!DOCTYPE html>
+<html lang="th"><head><meta charset="UTF-8">
+<title>รายงานสุขลักษณะส่วนบุคคล (QP-QA-10)</title>
+<style>
+  @page { size: A4 portrait; margin: 15mm; }
+  body { font-family: "TH Sarabun New", "Sarabun", sans-serif; color: #000; font-size: 14px; }
+  .doc-head { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #000; padding-bottom: 6px; }
+  .doc-head .ref { font-size: 12px; text-align: right; }
+  h1 { text-align: center; font-size: 20px; margin: 14px 0 4px; }
+  .sub { text-align: center; font-size: 13px; color: #333; margin-bottom: 12px; }
+  .meta { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 14px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { border: 1px solid #000; padding: 5px 4px; text-align: center; font-size: 13px; }
+  th { background: #e8eefc; }
+  td.emp { text-align: left; white-space: nowrap; }
+  td.seq { width: 32px; }
+  .pcol { width: 42px; }
+  .ok { color: #0a7d23; font-weight: bold; }
+  .ng { color: #c40000; font-weight: bold; }
+  td.result { font-weight: bold; }
+  td.result.ok { color: #0a7d23; }
+  td.result.ng { color: #c40000; }
+  .legend { margin-top: 10px; font-size: 12px; columns: 2; }
+  .legend div { margin-bottom: 2px; }
+  .summary { margin-top: 10px; font-size: 14px; }
+  .sign { margin-top: 40px; display: flex; justify-content: space-around; text-align: center; font-size: 14px; }
+  .sign .line { border-top: 1px dotted #000; width: 220px; margin: 0 auto 4px; padding-top: 4px; }
+  @media print { button { display: none; } }
+</style></head>
+<body>
+  <div class="doc-head">
+    <div><strong>บริษัท สอวรพัฒน์ อินเตอร์ฟู้ดส์ จำกัด</strong><br>ฝ่ายประกันคุณภาพ (QA)</div>
+    <div class="ref">เอกสารอ้างอิง: QP-QA-10<br>มาตรฐาน: GHP / GMP</div>
+  </div>
+  <h1>แบบบันทึกการตรวจสุขลักษณะส่วนบุคคลก่อนเข้าปฏิบัติงาน</h1>
+  <div class="sub">Personal Hygiene Inspection Record</div>
+  <div class="meta">
+    <div><strong>วันที่ตรวจ:</strong> ${dateThai}</div>
+    <div><strong>ผู้ตรวจ:</strong> ${inspector}</div>
+    <div><strong>จำนวนที่ตรวจ:</strong> ${sessionRecords.length} คน</div>
+  </div>
+  <table>
+    <thead>
+      <tr><th class="seq">ลำดับ</th><th>ชื่อ-สกุล พนักงาน</th>${headRow}<th>ผลรวม</th></tr>
+    </thead>
+    <tbody>${bodyRows}</tbody>
+  </table>
+  <div class="legend">
+    <strong>หัวข้อการตรวจ (พารามิเตอร์มาตรฐาน):</strong>
+    ${legend}
+  </div>
+  <div class="summary">
+    <strong>สรุปผล:</strong> ผ่าน ${passCount} คน / ไม่ผ่าน ${failCount} คน
+    &nbsp;|&nbsp; เกณฑ์: ✓ = ผ่าน, ✗ = ไม่ผ่าน
+    <br><em>หมายเหตุ: พนักงานที่มีผล "ไม่ผ่าน" ห้ามเข้าพื้นที่ผลิตจนกว่าจะแก้ไขให้เรียบร้อย</em>
+  </div>
+  <div class="sign">
+    <div><div class="line"></div>ผู้ตรวจ (${inspector})<br>วันที่ ${dateThai}</div>
+    <div><div class="line"></div>หัวหน้าฝ่าย / QA<br>วันที่ ............................</div>
+  </div>
+  <button onclick="window.print()" style="margin-top:20px;padding:10px 20px;">🖨️ พิมพ์รายงาน</button>
+</body></html>`;
+
+      const win = window.open("", "_blank");
+      if (!win) {
+        alert("ไม่สามารถเปิดหน้าต่างรายงานได้ กรุณาอนุญาต Pop-up สำหรับเว็บนี้ครับ");
+        return;
+      }
+      win.document.open();
+      win.document.write(html);
+      win.document.close();
+      win.onload = function() { setTimeout(function(){ win.print(); }, 300); };
     }
   </script>
 </body>
