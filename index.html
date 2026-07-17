@@ -142,6 +142,30 @@
       background: #eef2ff; color: var(--brand); font-size: 13.5px; font-weight: 600;
     }
     .session.has-records { background: var(--pass-soft); color: #065f46; }
+
+    /* ===== Reference photo panels ===== */
+    .ref-toggle {
+      background: none; border: none; padding: 7px 0 0;
+      color: var(--brand-2); font-family: inherit; font-size: 12px; font-weight: 500;
+      cursor: pointer; display: flex; align-items: center; gap: 4px; width: 100%;
+      text-align: left;
+    }
+    .ref-toggle:active { opacity: .7; }
+    .ref-panel {
+      display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
+    }
+    .ref-panel.open { display: grid; }
+    .ref-card {
+      border-radius: 10px; padding: 8px 6px;
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+    }
+    .ref-card.pass { background: #f0fdf4; border: 1.5px solid #86efac; }
+    .ref-card.fail { background: #fef2f2; border: 1.5px solid #fca5a5; }
+    .rc-label { font-size: 11.5px; font-weight: 700; }
+    .ref-card.pass .rc-label { color: #059669; }
+    .ref-card.fail .rc-label { color: #dc2626; }
+    .rc-icon { font-size: 30px; line-height: 1; margin: 2px 0; }
+    .rc-desc { font-size: 10.5px; text-align: center; color: #374151; line-height: 1.45; }
   </style>
 </head>
 <body>
@@ -182,7 +206,7 @@
     <!-- การ์ดหัวข้อการตรวจ -->
     <form id="ghpForm">
       <div class="card">
-        <div class="card-title">✅ หัวข้อการตรวจ (6 ข้อ)</div>
+        <div class="card-title">✅ หัวข้อการตรวจ (6 ข้อ) <span style="font-weight:400;font-size:11px;color:var(--muted);">· กด 📷 เพื่อดูภาพตัวอย่าง</span></div>
 
         <div class="item">
           <div class="item-head">
@@ -196,6 +220,19 @@
             <label for="uniform-p" class="seg-pass">✓ ผ่าน</label>
             <input type="radio" id="uniform-f" name="uniform" value="Fail">
             <label for="uniform-f" class="seg-fail">✗ ไม่ผ่าน</label>
+          </div>
+          <button class="ref-toggle" onclick="toggleRef('ref1')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
+          <div class="ref-panel" id="ref1">
+            <div class="ref-card pass">
+              <div class="rc-label">✓ ผ่าน</div>
+              <div class="rc-icon">👷</div>
+              <div class="rc-desc">สวมหมวกคลุมผมครบ · ผ้าปิดปาก-จมูก · ชุดปฏิบัติงานสะอาดเรียบร้อย</div>
+            </div>
+            <div class="ref-card fail">
+              <div class="rc-label">✗ ไม่ผ่าน</div>
+              <div class="rc-icon">🚫</div>
+              <div class="rc-desc">ผมออกนอกหมวก · ไม่สวมผ้าปิดปาก · ชุดสกปรก / ขาด / ไม่เรียบร้อย</div>
+            </div>
           </div>
         </div>
 
@@ -212,6 +249,19 @@
             <input type="radio" id="nails-f" name="nails" value="Fail">
             <label for="nails-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
+          <button class="ref-toggle" onclick="toggleRef('ref2')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
+          <div class="ref-panel" id="ref2">
+            <div class="ref-card pass">
+              <div class="rc-label">✓ ผ่าน</div>
+              <div class="rc-icon">🤲</div>
+              <div class="rc-desc">เล็บสั้นสะอาด · ไม่ทาสีเล็บ · ไม่สวมแหวน / กำไล / นาฬิกา</div>
+            </div>
+            <div class="ref-card fail">
+              <div class="rc-label">✗ ไม่ผ่าน</div>
+              <div class="rc-icon">💅</div>
+              <div class="rc-desc">เล็บยาว / ทาสีเล็บ · สวมเครื่องประดับ · มีบาดแผลที่มือ</div>
+            </div>
+          </div>
         </div>
 
         <div class="item">
@@ -226,6 +276,19 @@
             <label for="cosmetics-p" class="seg-pass">✓ ผ่าน</label>
             <input type="radio" id="cosmetics-f" name="cosmetics" value="Fail">
             <label for="cosmetics-f" class="seg-fail">✗ ไม่ผ่าน</label>
+          </div>
+          <button class="ref-toggle" onclick="toggleRef('ref3')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
+          <div class="ref-panel" id="ref3">
+            <div class="ref-card pass">
+              <div class="rc-label">✓ ผ่าน</div>
+              <div class="rc-icon">🙂</div>
+              <div class="rc-desc">ไม่แต่งหน้า · ไม่ทาลิปสติก · ไม่ฉีดน้ำหอม / สเปรย์</div>
+            </div>
+            <div class="ref-card fail">
+              <div class="rc-label">✗ ไม่ผ่าน</div>
+              <div class="rc-icon">💄</div>
+              <div class="rc-desc">แต่งหน้า / ทาลิปสติก · ฉีดน้ำหอมก่อนเข้าพื้นที่ผลิต</div>
+            </div>
           </div>
         </div>
 
@@ -242,6 +305,19 @@
             <input type="radio" id="health-f" name="health" value="Fail">
             <label for="health-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
+          <button class="ref-toggle" onclick="toggleRef('ref4')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
+          <div class="ref-panel" id="ref4">
+            <div class="ref-card pass">
+              <div class="rc-label">✓ ผ่าน</div>
+              <div class="rc-icon">💪</div>
+              <div class="rc-desc">ไม่มีอาการป่วย · ไม่ไอ/จาม · ไม่มีบาดแผลเปิด / โรคผิวหนัง</div>
+            </div>
+            <div class="ref-card fail">
+              <div class="rc-label">✗ ไม่ผ่าน</div>
+              <div class="rc-icon">🤒</div>
+              <div class="rc-desc">มีไข้ / ป่วย / ไอ / จาม · บาดแผลไม่ปิดมิดชิด · มีโรคผิวหนัง</div>
+            </div>
+          </div>
         </div>
 
         <div class="item">
@@ -257,6 +333,19 @@
             <input type="radio" id="specialEq-f" name="specialEq" value="Fail">
             <label for="specialEq-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
+          <button class="ref-toggle" onclick="toggleRef('ref5')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
+          <div class="ref-panel" id="ref5">
+            <div class="ref-card pass">
+              <div class="rc-label">✓ ผ่าน</div>
+              <div class="rc-icon">🕶️</div>
+              <div class="rc-desc">แว่นตามีสายคล้อง · แจ้ง หน.งาน หากใส่คอนแทคเลนส์</div>
+            </div>
+            <div class="ref-card fail">
+              <div class="rc-label">✗ ไม่ผ่าน</div>
+              <div class="rc-icon">❌</div>
+              <div class="rc-desc">แว่นตาไม่มีสายคล้อง · ใส่คอนแทคโดยไม่แจ้งหัวหน้างาน</div>
+            </div>
+          </div>
         </div>
 
         <div class="item">
@@ -271,6 +360,19 @@
             <label for="behavior-p" class="seg-pass">✓ ผ่าน</label>
             <input type="radio" id="behavior-f" name="behavior" value="Fail">
             <label for="behavior-f" class="seg-fail">✗ ไม่ผ่าน</label>
+          </div>
+          <button class="ref-toggle" onclick="toggleRef('ref6')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
+          <div class="ref-panel" id="ref6">
+            <div class="ref-card pass">
+              <div class="rc-label">✓ ผ่าน</div>
+              <div class="rc-icon">🧼</div>
+              <div class="rc-desc">ล้างมือทุกครั้งก่อนเข้างาน · ไม่พกมือถือ / อาหาร / เครื่องดื่ม / บุหรี่</div>
+            </div>
+            <div class="ref-card fail">
+              <div class="rc-label">✗ ไม่ผ่าน</div>
+              <div class="rc-icon">📱</div>
+              <div class="rc-desc">ไม่ล้างมือก่อนเข้างาน · พกมือถือ / อาหาร / บุหรี่เข้าพื้นที่ผลิต</div>
+            </div>
           </div>
         </div>
       </div>
@@ -312,6 +414,14 @@
       { key: "specialEq", label: "5. อุปกรณ์ส่วนบุคคลพิเศษ" },
       { key: "behavior",  label: "6. พฤติกรรม/สุขอนามัยมือ" }
     ];
+
+    // เปิด/ปิดพาเนลตัวอย่างภาพอ้างอิงของแต่ละข้อ
+    function toggleRef(id) {
+      const panel = document.getElementById(id);
+      const btn = panel.previousElementSibling;
+      const isOpen = panel.classList.toggle('open');
+      btn.textContent = isOpen ? '📷 ซ่อนตัวอย่าง ▴' : '📷 ดูตัวอย่างภาพอ้างอิง ▾';
+    }
 
     // อ่านค่าที่เลือก (Pass/Fail) จากปุ่ม segmented
     function getStatus(name) {
