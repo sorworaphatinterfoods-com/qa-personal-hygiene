@@ -36,11 +36,18 @@ var REC_HEADERS = [
 ];
 
 /**
- * GET: คืนรายชื่อพนักงานให้หน้าเว็บนำไปแสดงใน dropdown
- * รูปแบบที่หน้าเว็บคาดหวัง: { result: "success", data: ["ชื่อ A", "ชื่อ B", ...] }
+ * GET: คืนรายชื่อพนักงาน (default) หรือดึงรายการตรวจย้อนหลัง
+ *   ?action=getRecords&date=YYYY-MM-DD  → { result, records: [...] }
+ *   (ไม่ส่ง action)                    → { result, data: ["ชื่อ A", ...] }
  */
 function doGet(e) {
   try {
+    var action = e && e.parameter && e.parameter.action;
+    if (action === "getRecords") {
+      return doGetRecords(e);
+    }
+
+    // default: คืนรายชื่อพนักงาน
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(EMP_SHEET);
     var names = [];
@@ -54,6 +61,49 @@ function doGet(e) {
     }
 
     return jsonOutput({ result: "success", data: names });
+  } catch (err) {
+    return jsonOutput({ result: "error", message: String(err) });
+  }
+}
+
+/**
+ * ดึงรายการตรวจจากชีต Records ตามวันที่
+ * column index: 0=Timestamp, 1=วันที่ตรวจ, 2=ผู้ตรวจ, 3=ชื่อพนักงาน,
+ *               4=uniform, 5=nails, 6=cosmetics, 7=health, 8=specialEq,
+ *               9=behavior, 10=ผลรวม, 11=userId
+ */
+function doGetRecords(e) {
+  try {
+    var date = (e.parameter && e.parameter.date) ? String(e.parameter.date).trim() : "";
+    var ss = SpreadsheetApp.getActiveSpreadsheet();
+    var sheet = ss.getSheetByName(REC_SHEET);
+
+    if (!sheet || sheet.getLastRow() <= 1) {
+      return jsonOutput({ result: "success", records: [] });
+    }
+
+    var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, REC_HEADERS.length).getValues();
+    var records = [];
+
+    rows.forEach(function (row) {
+      var rowDate = String(row[1]).trim();
+      if (!date || rowDate === date) {
+        records.push({
+          inspectionDate: rowDate,
+          inspector:      String(row[2]).trim(),
+          empName:        String(row[3]).trim(),
+          uniform:        String(row[4]).trim(),
+          nails:          String(row[5]).trim(),
+          cosmetics:      String(row[6]).trim(),
+          health:         String(row[7]).trim(),
+          specialEq:      String(row[8]).trim(),
+          behavior:       String(row[9]).trim(),
+          overall:        String(row[10]).trim()
+        });
+      }
+    });
+
+    return jsonOutput({ result: "success", records: records });
   } catch (err) {
     return jsonOutput({ result: "error", message: String(err) });
   }

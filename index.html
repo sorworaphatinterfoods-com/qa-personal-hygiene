@@ -382,6 +382,16 @@
 
     <button type="button" class="btn btn-outline" id="reportBtn" onclick="generateA4()">🖨️ สร้างรายงาน A4 / พิมพ์</button>
     <div class="session" id="sessionInfo">ยังไม่มีรายการที่บันทึกในรอบนี้</div>
+
+    <!-- ===== ดึงรายงานย้อนหลัง ===== -->
+    <div class="card" style="margin-top:18px;">
+      <div class="card-title">📅 พิมพ์รายงานย้อนหลัง</div>
+      <div class="field">
+        <label for="historyDate">เลือกวันที่ที่ต้องการดึงรายงาน</label>
+        <input type="date" id="historyDate">
+      </div>
+      <button type="button" class="btn btn-outline" id="historyBtn" onclick="fetchHistoryAndPrint()">🔍 ดึงข้อมูลและพิมพ์รายงาน</button>
+    </div>
   </div>
 
   <script>
@@ -444,6 +454,7 @@
       const mm = String(today.getMonth() + 1).padStart(2, '0');
       const dd = String(today.getDate()).padStart(2, '0');
       document.getElementById('inspectionDate').value = `${yyyy}-${mm}-${dd}`;
+      document.getElementById('historyDate').value = `${yyyy}-${mm}-${dd}`;
 
       // ผูก event ให้ปุ่ม segmented ทุกอันอัปเดต progress
       document.querySelectorAll('.seg input[type="radio"]').forEach(function (r) {
@@ -583,18 +594,10 @@
       return '-';
     }
 
-    // สร้างรายงาน A4 และเปิดหน้าต่างพิมพ์
-    function generateA4() {
-      if (sessionRecords.length === 0) {
-        alert("ยังไม่มีรายการที่บันทึก กรุณาบันทึกผลการตรวจอย่างน้อย 1 รายการก่อนสร้างรายงานครับ");
-        return;
-      }
-
-      const inspector = document.getElementById('inspectorName').value.trim() || sessionRecords[0].inspector;
-      const dateThai = formatThaiDate(document.getElementById('inspectionDate').value || sessionRecords[0].inspectionDate);
-
+    // สร้าง HTML รายงาน A4 จาก records array (ใช้ร่วมกันทั้งรอบปัจจุบันและย้อนหลัง)
+    function buildA4HTML(records, inspector, dateThai) {
       const headRow = PARAMS.map((p, i) => `<th class="pcol">${i + 1}</th>`).join("");
-      const bodyRows = sessionRecords.map((r, idx) => {
+      const bodyRows = records.map((r, idx) => {
         const cells = PARAMS.map(p => `<td class="pcol">${statusCell(r[p.key])}</td>`).join("");
         const result = r.overall === "Fail"
           ? '<td class="result ng">ไม่ผ่าน</td>'
@@ -603,10 +606,10 @@
       }).join("");
 
       const legend = PARAMS.map(p => `<div>${p.label}</div>`).join("");
-      const passCount = sessionRecords.filter(r => r.overall === "Pass").length;
-      const failCount = sessionRecords.length - passCount;
+      const passCount = records.filter(r => r.overall === "Pass").length;
+      const failCount = records.length - passCount;
 
-      const html = `<!DOCTYPE html>
+      return `<!DOCTYPE html>
 <html lang="th"><head><meta charset="UTF-8">
 <title>รายงานสุขลักษณะส่วนบุคคล (QP-QA-10)</title>
 <style>
@@ -645,7 +648,7 @@
   <div class="meta">
     <div><strong>วันที่ตรวจ:</strong> ${dateThai}</div>
     <div><strong>ผู้ตรวจ:</strong> ${inspector}</div>
-    <div><strong>จำนวนที่ตรวจ:</strong> ${sessionRecords.length} คน</div>
+    <div><strong>จำนวนที่ตรวจ:</strong> ${records.length} คน</div>
   </div>
   <table>
     <thead>
@@ -668,7 +671,9 @@
   </div>
   <button onclick="window.print()" style="margin-top:20px;padding:10px 20px;">🖨️ พิมพ์รายงาน</button>
 </body></html>`;
+    }
 
+    function openPrintWindow(html) {
       const win = window.open("", "_blank");
       if (!win) {
         alert("ไม่สามารถเปิดหน้าต่างรายงานได้ กรุณาอนุญาต Pop-up สำหรับเว็บนี้ครับ");
@@ -678,6 +683,50 @@
       win.document.write(html);
       win.document.close();
       win.onload = function() { setTimeout(function(){ win.print(); }, 300); };
+    }
+
+    // สร้างรายงาน A4 จากรายการที่บันทึกในรอบนี้
+    function generateA4() {
+      if (sessionRecords.length === 0) {
+        alert("ยังไม่มีรายการที่บันทึก กรุณาบันทึกผลการตรวจอย่างน้อย 1 รายการก่อนสร้างรายงานครับ");
+        return;
+      }
+      const inspector = document.getElementById('inspectorName').value.trim() || sessionRecords[0].inspector;
+      const dateThai = formatThaiDate(document.getElementById('inspectionDate').value || sessionRecords[0].inspectionDate);
+      openPrintWindow(buildA4HTML(sessionRecords, inspector, dateThai));
+    }
+
+    // ดึงข้อมูลย้อนหลังจาก Google Sheets แล้วพิมพ์รายงาน
+    function fetchHistoryAndPrint() {
+      const date = document.getElementById('historyDate').value;
+      if (!date) {
+        alert("กรุณาเลือกวันที่ที่ต้องการดึงรายงานครับ");
+        return;
+      }
+      const btn = document.getElementById('historyBtn');
+      btn.innerText = "⏳ กำลังดึงข้อมูล...";
+      btn.disabled = true;
+
+      fetch(WEB_APP_URL + '?action=getRecords&date=' + encodeURIComponent(date))
+        .then(r => r.json())
+        .then(data => {
+          if (data.result !== "success") {
+            throw new Error(data.message || "เกิดข้อผิดพลาดจาก server");
+          }
+          if (!data.records || data.records.length === 0) {
+            alert("ไม่พบข้อมูลการตรวจสำหรับวันที่ " + formatThaiDate(date) + " ครับ");
+            return;
+          }
+          const inspector = data.records[0].inspector || "";
+          openPrintWindow(buildA4HTML(data.records, inspector, formatThaiDate(date)));
+        })
+        .catch(err => {
+          alert("เกิดข้อผิดพลาดในการดึงข้อมูล: " + err);
+        })
+        .finally(() => {
+          btn.innerText = "🔍 ดึงข้อมูลและพิมพ์รายงาน";
+          btn.disabled = false;
+        });
     }
   </script>
 </body>
