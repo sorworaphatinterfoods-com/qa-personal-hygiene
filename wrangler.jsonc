@@ -2,13 +2,23 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "qa-personal-hygiene",
   "compatibility_date": "2026-05-31",
+  "main": "worker/index.js",
   "observability": {
     "enabled": true
   },
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS"
   },
   "compatibility_flags": [
     "nodejs_compat"
+  ],
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "qa-hygiene",
+      "database_id": "REPLACE_WITH_YOUR_D1_DATABASE_ID",
+      "migrations_dir": "migrations"
+    }
   ]
 }
