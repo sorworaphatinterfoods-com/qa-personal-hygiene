@@ -1,119 +1,124 @@
 /**
- * GHP Personal Hygiene Inspection — Google Apps Script backend (ต้นแบบ/Template)
+ * GHP Personal Hygiene Inspection — Google Apps Script backend
  * เอกสารอ้างอิง: QP-QA-10  |  มาตรฐาน: GHP / GMP
  *
- * วิธีใช้:
- *   1) เปิด Google Sheet ที่ใช้เก็บข้อมูล แล้วไปที่ Extensions > Apps Script
- *   2) วางโค้ดนี้แทนของเดิม (ปรับชื่อชีต/คอลัมน์ให้ตรงกับของจริงตามหมายเหตุด้านล่าง)
- *   3) Deploy > New deployment > Web app
- *        - Execute as: Me
- *        - Who has access: Anyone
- *   4) คัดลอก URL ที่ได้ไปใส่ใน index.html ที่ตัวแปร WEB_APP_URL
+ *   GET  (ไม่ส่ง action)              → รายชื่อพนักงาน (เหมือนของเดิม)
+ *   GET  ?action=dates                → วันที่ที่มีการตรวจ (unique, ใหม่→เก่า)
+ *   GET  ?action=records&date=YYYY-MM-DD → ผลตรวจของวันนั้น (รายคน)
+ * ทุก response จะมีฟิลด์ action สะท้อนกลับ เพื่อให้ระบบ QA ตรวจได้ว่า
+ * backend อัปเกรดแล้ว (Smart QA Factory จะแสดงแผงผลตรวจสดอัตโนมัติ)
  *
- * โครงสร้างชีตที่โค้ดนี้คาดหวัง (ปรับชื่อได้ที่ค่าคงที่ด้านล่าง):
- *   - ชีต "Employees": คอลัมน์ A เก็บรายชื่อพนักงาน (แถวที่ 1 เป็นหัวตาราง)
- *   - ชีต "Records":   ใช้บันทึกผลการตรวจ (โค้ดจะสร้างหัวตารางให้อัตโนมัติถ้ายังไม่มี)
+ * วิธีติดตั้ง:
+ *   1) เปิด Google Sheet เดิม → Extensions > Apps Script
+ *   2) วางโค้ดนี้แทนของเดิมทั้งไฟล์
+ *   3) Deploy > Manage deployments > (deployment เดิม) > Edit ✏️ >
+ *      Version: New version > Deploy   ← สำคัญ! ต้อง deploy เวอร์ชันใหม่
+ *      (ถ้า Deploy ใหม่เป็นคนละ URL ต้องอัปเดต WEB_APP_URL ใน index.html ด้วย)
  */
 
 // ===== ตั้งค่าให้ตรงกับชีตจริงของคุณ =====
 var EMP_SHEET = "Employees";
 var REC_SHEET = "Records";
 
-// หัวตารางของชีต Records (เพิ่ม "วันที่ตรวจ" และ "ผู้ตรวจ" แล้ว)
+// หัวตารางของชีต Records (ตรงกับของเดิม)
 var REC_HEADERS = [
-  "Timestamp",        // เวลาที่บันทึก (อัตโนมัติ)
-  "วันที่ตรวจ",        // inspectionDate (จากผู้ใช้)
-  "ผู้ตรวจ",           // inspector (จากผู้ใช้)
-  "ชื่อพนักงาน",       // displayName
-  "การแต่งกาย",        // uniform
-  "มือ/เล็บ/เครื่องประดับ", // nails
-  "แต่งหน้า/น้ำหอม",   // cosmetics
-  "สุขภาพ",            // health
-  "อุปกรณ์ส่วนบุคคล",  // specialEq
-  "พฤติกรรม/ล้างมือ",  // behavior
-  "ผลรวม",             // overall (Pass/Fail)
-  "ผู้บันทึก (LINE userId)" // userId
+  "Timestamp",
+  "วันที่ตรวจ",
+  "ผู้ตรวจ",
+  "ชื่อพนักงาน",
+  "การแต่งกาย",
+  "มือ/เล็บ/เครื่องประดับ",
+  "แต่งหน้า/น้ำหอม",
+  "สุขภาพ",
+  "อุปกรณ์ส่วนบุคคล",
+  "พฤติกรรม/ล้างมือ",
+  "ผลรวม",
+  "ผู้บันทึก (LINE userId)"
 ];
 
-/**
- * GET: คืนรายชื่อพนักงาน (default) หรือดึงรายการตรวจย้อนหลัง
- *   ?action=getRecords&date=YYYY-MM-DD  → { result, records: [...] }
- *   (ไม่ส่ง action)                    → { result, data: ["ชื่อ A", ...] }
- */
+// key ภาษาอังกฤษของแต่ละคอลัมน์ (ให้ระบบ QA อ่านเป็น JSON สวยๆ)
+var REC_KEYS = [
+  "timestamp", "inspectionDate", "inspector", "displayName",
+  "uniform", "nails", "cosmetics", "health", "specialEq", "behavior",
+  "overall", "userId"
+];
+
 function doGet(e) {
   try {
-    var action = e && e.parameter && e.parameter.action;
-    if (action === "getRecords") {
-      return doGetRecords(e);
-    }
+    var action = (e && e.parameter && e.parameter.action) || "employees";
 
-    // default: คืนรายชื่อพนักงาน
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(EMP_SHEET);
-    var names = [];
+    if (action === "dates")   return jsonOutput({ result: "success", action: "dates",   data: listDates() });
+    if (action === "records") return jsonOutput({ result: "success", action: "records", data: listRecords(e.parameter.date) });
 
-    if (sheet && sheet.getLastRow() > 1) {
-      // อ่านคอลัมน์ A ตั้งแต่แถวที่ 2 (ข้ามหัวตาราง)
-      var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
-      names = values
-        .map(function (row) { return String(row[0]).trim(); })
-        .filter(function (name) { return name !== ""; });
-    }
-
-    return jsonOutput({ result: "success", data: names });
+    // default (ของเดิม): รายชื่อพนักงานสำหรับ dropdown หน้าเว็บ
+    return jsonOutput({ result: "success", action: "employees", data: listEmployees() });
   } catch (err) {
     return jsonOutput({ result: "error", message: String(err) });
   }
 }
 
-/**
- * ดึงรายการตรวจจากชีต Records ตามวันที่
- * column index: 0=Timestamp, 1=วันที่ตรวจ, 2=ผู้ตรวจ, 3=ชื่อพนักงาน,
- *               4=uniform, 5=nails, 6=cosmetics, 7=health, 8=specialEq,
- *               9=behavior, 10=ผลรวม, 11=userId
- */
-function doGetRecords(e) {
-  try {
-    var date = (e.parameter && e.parameter.date) ? String(e.parameter.date).trim() : "";
-    var ss = SpreadsheetApp.getActiveSpreadsheet();
-    var sheet = ss.getSheetByName(REC_SHEET);
-
-    if (!sheet || sheet.getLastRow() <= 1) {
-      return jsonOutput({ result: "success", records: [] });
-    }
-
-    var rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, REC_HEADERS.length).getValues();
-    var records = [];
-
-    rows.forEach(function (row) {
-      var rowDate = String(row[1]).trim();
-      if (!date || rowDate === date) {
-        records.push({
-          inspectionDate: rowDate,
-          inspector:      String(row[2]).trim(),
-          empName:        String(row[3]).trim(),
-          uniform:        String(row[4]).trim(),
-          nails:          String(row[5]).trim(),
-          cosmetics:      String(row[6]).trim(),
-          health:         String(row[7]).trim(),
-          specialEq:      String(row[8]).trim(),
-          behavior:       String(row[9]).trim(),
-          overall:        String(row[10]).trim()
-        });
-      }
-    });
-
-    return jsonOutput({ result: "success", records: records });
-  } catch (err) {
-    return jsonOutput({ result: "error", message: String(err) });
+function listEmployees() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(EMP_SHEET);
+  var names = [];
+  if (sheet && sheet.getLastRow() > 1) {
+    var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, 1).getValues();
+    names = values
+      .map(function (row) { return String(row[0]).trim(); })
+      .filter(function (name) { return name !== ""; });
   }
+  return names;
+}
+
+/** แปลงค่าวันที่ในชีต (Date object หรือ string) → "YYYY-MM-DD" */
+function normDate(v) {
+  if (v instanceof Date) {
+    return Utilities.formatDate(v, Session.getScriptTimeZone(), "yyyy-MM-dd");
+  }
+  var s = String(v || "").trim();
+  // รองรับ DD/MM/YYYY ที่ผู้ใช้อาจพิมพ์เอง
+  var m = s.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if (m) return m[3] + "-" + ("0" + m[2]).slice(-2) + "-" + ("0" + m[1]).slice(-2);
+  return s.slice(0, 10);
+}
+
+function readAllRecords() {
+  var ss = SpreadsheetApp.getActiveSpreadsheet();
+  var sheet = ss.getSheetByName(REC_SHEET);
+  if (!sheet || sheet.getLastRow() < 2) return [];
+  var values = sheet.getRange(2, 1, sheet.getLastRow() - 1, REC_HEADERS.length).getValues();
+  return values.map(function (row) {
+    var o = {};
+    for (var i = 0; i < REC_KEYS.length; i++) {
+      var v = row[i];
+      if (v instanceof Date) v = (i === 0)
+        ? Utilities.formatDate(v, Session.getScriptTimeZone(), "yyyy-MM-dd HH:mm")
+        : normDate(v);
+      o[REC_KEYS[i]] = (v === null || v === undefined) ? "" : String(v);
+    }
+    o.inspectionDate = normDate(o.inspectionDate || o.timestamp);
+    return o;
+  });
+}
+
+/** รายการวันที่ (unique, ใหม่→เก่า) */
+function listDates() {
+  var seen = {};
+  readAllRecords().forEach(function (r) { if (r.inspectionDate) seen[r.inspectionDate] = true; });
+  return Object.keys(seen).sort().reverse();
+}
+
+/** ผลตรวจของวันที่ระบุ (ไม่ส่ง date = ทั้งหมด จำกัด 500 แถวล่าสุด) */
+function listRecords(date) {
+  var rows = readAllRecords();
+  if (date) rows = rows.filter(function (r) { return r.inspectionDate === String(date).slice(0, 10); });
+  // ตัด userId ออกจาก payload (ข้อมูลส่วนบุคคล ไม่จำเป็นต่อหน้าจอ QA)
+  rows.forEach(function (r) { delete r.userId; delete r.timestamp; });
+  return rows.slice(-500);
 }
 
 /**
- * POST: บันทึกผลการตรวจ 1 รายการลงชีต Records
- * payload จากหน้าเว็บ: { userId, inspectionDate, inspector, displayName,
- *                        uniform, nails, cosmetics, health, specialEq, behavior }
- * คืนค่า: { status: "Pass" | "Fail" }
+ * POST: บันทึกผลการตรวจ 1 รายการลงชีต Records (เหมือนของเดิมทุกประการ)
  */
 function doPost(e) {
   try {
@@ -121,15 +126,9 @@ function doPost(e) {
 
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var sheet = ss.getSheetByName(REC_SHEET);
-    if (!sheet) {
-      sheet = ss.insertSheet(REC_SHEET);
-    }
-    // สร้างหัวตารางอัตโนมัติถ้าชีตยังว่าง
-    if (sheet.getLastRow() === 0) {
-      sheet.appendRow(REC_HEADERS);
-    }
+    if (!sheet) sheet = ss.insertSheet(REC_SHEET);
+    if (sheet.getLastRow() === 0) sheet.appendRow(REC_HEADERS);
 
-    // คำนวณผลรวม: ถ้ามีข้อใดข้อหนึ่ง "Fail" ถือว่าไม่ผ่าน
     var items = [
       data.uniform, data.nails, data.cosmetics,
       data.health, data.specialEq, data.behavior
