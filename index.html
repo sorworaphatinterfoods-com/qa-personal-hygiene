@@ -18,7 +18,7 @@
   <!-- ฟอนต์ไทย -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bai+Jamjuree:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
   <style>
@@ -36,7 +36,7 @@
     }
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
-      font-family: "Noto Sans Thai", system-ui, sans-serif;
+      font-family: "Bai Jamjuree", system-ui, sans-serif;
       margin: 0; padding: 0 0 40px;
       background: var(--bg); color: var(--ink);
       line-height: 1.5;
@@ -144,17 +144,7 @@
     .session.has-records { background: var(--pass-soft); color: #065f46; }
 
     /* ===== Reference photo panels ===== */
-    .ref-toggle {
-      background: none; border: none; padding: 7px 0 0;
-      color: var(--brand-2); font-family: inherit; font-size: 12px; font-weight: 500;
-      cursor: pointer; display: flex; align-items: center; gap: 4px; width: 100%;
-      text-align: left;
-    }
-    .ref-toggle:active { opacity: .7; }
-    .ref-panel {
-      display: none; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;
-    }
-    .ref-panel.open { display: grid; }
+    .ref-panel { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
     .ref-card {
       border-radius: 10px; padding: 8px 6px;
       display: flex; flex-direction: column; align-items: center; gap: 3px;
@@ -200,13 +190,17 @@
         <select id="employeeName" required>
           <option value="" disabled selected>⏳ กำลังโหลดรายชื่อพนักงาน...</option>
         </select>
+        <div style="display:flex;gap:8px;margin-top:8px;">
+          <input type="text" id="newEmpName" placeholder="เพิ่มพนักงานใหม่..." style="margin:0;flex:1;">
+          <button type="button" onclick="addEmployee()" style="flex:0 0 auto;padding:0 16px;height:48px;border-radius:12px;border:none;background:var(--brand);color:#fff;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;">+ เพิ่ม</button>
+        </div>
       </div>
     </div>
 
     <!-- การ์ดหัวข้อการตรวจ -->
     <form id="ghpForm">
       <div class="card">
-        <div class="card-title">✅ หัวข้อการตรวจ (12 ข้อ) <span style="font-weight:400;font-size:11px;color:var(--muted);">· กด 📷 เพื่อดูภาพตัวอย่าง</span></div>
+        <div class="card-title">✅ หัวข้อการตรวจ (12 ข้อ)</div>
 
         <div class="item">
           <div class="item-head">
@@ -221,7 +215,6 @@
             <input type="radio" id="item1-f" name="item1" value="Fail">
             <label for="item1-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref1')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref1">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">👷</div><div class="rc-desc">คลุมผมมิดชิด · สะอาด · ไม่มีขุย / เส้นผมออกนอกหมวก</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">🚫</div><div class="rc-desc">ผมออกนอกหมวก · หมวกสกปรก · ไม่สวมหมวก</div></div>
@@ -241,7 +234,6 @@
             <input type="radio" id="item2-f" name="item2" value="Fail">
             <label for="item2-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref2')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref2">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">😷</div><div class="rc-desc">ปิดจมูกและปากมิดชิด · สะอาด · กระชับพอดี</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">🚫</div><div class="rc-desc">ไม่สวมหน้ากาก · หน้ากากหย่อน/สกปรก · ปิดไม่มิดชิด</div></div>
@@ -261,7 +253,6 @@
             <input type="radio" id="item3-f" name="item3" value="Fail">
             <label for="item3-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref3')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref3">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">🥼</div><div class="rc-desc">สะอาด · ไม่เปื้อน · ไม่มีรอยขาด</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">🚫</div><div class="rc-desc">ผ้ากันเปื้อนสกปรก / เปื้อน / ขาด / ไม่สวม</div></div>
@@ -281,7 +272,6 @@
             <input type="radio" id="item4-f" name="item4" value="Fail">
             <label for="item4-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref4')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref4">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">🧤</div><div class="rc-desc">สะอาด · ไม่มีรอยขาด · เหมาะกับประเภทงาน</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">❌</div><div class="rc-desc">ถุงมือสกปรก / ขาด / ไม่เหมาะกับงาน / ไม่สวม</div></div>
@@ -301,7 +291,6 @@
             <input type="radio" id="item5-f" name="item5" value="Fail">
             <label for="item5-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref5')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref5">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">👟</div><div class="rc-desc">สะอาด · ไม่แตกหรือหลุด · อยู่ในสภาพพร้อมใช้งาน</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">🚫</div><div class="rc-desc">รองเท้าสกปรก / แตก / ชำรุด / ไม่สวมรองเท้า</div></div>
@@ -321,7 +310,6 @@
             <input type="radio" id="item6-f" name="item6" value="Fail">
             <label for="item6-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref6')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref6">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">👔</div><div class="rc-desc">ชุดสะอาด · ไม่มีคราบ · เรียบร้อยพร้อมเข้าพื้นที่ผลิต</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">🚫</div><div class="rc-desc">ชุดสกปรก / มีคราบ / ขาด / ไม่เรียบร้อย</div></div>
@@ -341,7 +329,6 @@
             <input type="radio" id="item7-f" name="item7" value="Fail">
             <label for="item7-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref7')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref7">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">🤲</div><div class="rc-desc">เล็บตัดสั้น · สะอาด · ไม่ทาสีเล็บ · ไม่มีเล็บปลอม</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">💅</div><div class="rc-desc">เล็บยาว / ทาสีเล็บ / ติดเล็บปลอม</div></div>
@@ -361,7 +348,6 @@
             <input type="radio" id="item8-f" name="item8" value="Fail">
             <label for="item8-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref8')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref8">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">✋</div><div class="rc-desc">ไม่สวมแหวน · ไม่ใส่กำไล / ต่างหู / นาฬิกา</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">💍</div><div class="rc-desc">สวมแหวน / กำไล / ต่างหู / นาฬิกา เข้าพื้นที่ผลิต</div></div>
@@ -381,7 +367,6 @@
             <input type="radio" id="item9-f" name="item9" value="Fail">
             <label for="item9-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref9')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref9">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">🙂</div><div class="rc-desc">ไม่ใช้น้ำหอมหรือสเปรย์ฉีดตัวก่อนเข้าพื้นที่ผลิต</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">🌸</div><div class="rc-desc">ฉีดน้ำหอม / สเปรย์ก่อนเข้าพื้นที่ผลิต</div></div>
@@ -401,7 +386,6 @@
             <input type="radio" id="item10-f" name="item10" value="Fail">
             <label for="item10-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref10')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref10">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">🚫</div><div class="rc-desc">ไม่พกขนม / อาหาร / เครื่องดื่มเข้าพื้นที่ผลิต</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">🍫</div><div class="rc-desc">พกขนม / อาหาร / เครื่องดื่มเข้าพื้นที่ผลิต</div></div>
@@ -421,7 +405,6 @@
             <input type="radio" id="item11-f" name="item11" value="Fail">
             <label for="item11-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref11')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref11">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">🚫</div><div class="rc-desc">ไม่พกโทรศัพท์ / กุญแจ / ของใช้ส่วนตัวเข้าพื้นที่</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">📱</div><div class="rc-desc">พกโทรศัพท์ / กุญแจ / ของใช้ส่วนตัวเข้าพื้นที่ผลิต</div></div>
@@ -441,7 +424,6 @@
             <input type="radio" id="item12-f" name="item12" value="Fail">
             <label for="item12-f" class="seg-fail">✗ ไม่ผ่าน</label>
           </div>
-          <button type="button" class="ref-toggle" onclick="toggleRef('ref12')">📷 ดูตัวอย่างภาพอ้างอิง ▾</button>
           <div class="ref-panel" id="ref12">
             <div class="ref-card pass"><div class="rc-label">✓ ผ่าน</div><div class="rc-icon">🧼</div><div class="rc-desc">ล้างมือครบขั้นตอน · ใช้น้ำยาฆ่าเชื้อ · ปลอดจากเชื้อโรค</div></div>
             <div class="ref-card fail"><div class="rc-label">✗ ไม่ผ่าน</div><div class="rc-icon">🚿</div><div class="rc-desc">ไม่ล้างมือ / ล้างมือไม่ครบขั้นตอน / ไม่ใช้น้ำยาฆ่าเชื้อ</div></div>
@@ -498,14 +480,6 @@
       { key: "item11", label: "11. ของใช้ส่วนตัว" },
       { key: "item12", label: "12. การล้างมือ" },
     ];
-
-    // เปิด/ปิดพาเนลตัวอย่างภาพอ้างอิงของแต่ละข้อ
-    function toggleRef(id) {
-      const panel = document.getElementById(id);
-      const btn = panel.previousElementSibling;
-      const isOpen = panel.classList.toggle('open');
-      btn.textContent = isOpen ? '📷 ซ่อนตัวอย่าง ▴' : '📷 ดูตัวอย่างภาพอ้างอิง ▾';
-    }
 
     // อ่านค่าที่เลือก (Pass/Fail) จากปุ่ม segmented
     function getStatus(name) {
@@ -620,6 +594,28 @@
           submitBtn.innerText = "💾 บันทึก และตรวจคนต่อไป";
           submitBtn.disabled = false;
         });
+    }
+
+    function addEmployee() {
+      const input = document.getElementById('newEmpName');
+      const name = input.value.trim();
+      if (!name) return;
+      fetch('/api/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      })
+        .then(r => r.json())
+        .then(data => {
+          if (data.result !== 'success') throw new Error(data.error);
+          const sel = document.getElementById('employeeName');
+          const opt = document.createElement('option');
+          opt.value = opt.text = name;
+          sel.appendChild(opt);
+          sel.value = name;
+          input.value = '';
+        })
+        .catch(err => alert('เพิ่มพนักงานไม่สำเร็จ: ' + err));
     }
 
     function updateSessionInfo() {
