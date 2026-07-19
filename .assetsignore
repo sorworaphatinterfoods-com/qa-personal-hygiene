@@ -2,6 +2,8 @@ node_modules/
 .git/
 .github/
 backend/
+worker/
+migrations/
 README.md
 wrangler.jsonc
 package.json
